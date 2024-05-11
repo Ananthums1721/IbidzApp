@@ -1,0 +1,2 @@
+# IbidzApp
+Ibidz Mobile App
