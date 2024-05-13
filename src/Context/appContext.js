@@ -1,18 +1,13 @@
-import React, { createContext, useState } from 'react';
+import React, {createContext, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
-import {
-  verifyOTP,
-  loginUser,
-  updateProfile,
-  getWishList,
-} from '../api';
+import {verifyOTP, loginUser, updateProfile, getWishList} from '../api';
 // import OneSignal from 'react-native-onesignal';
-import  OneSignal  from 'react-native-onesignal';
+import OneSignal from 'react-native-onesignal';
 
 export const AppContext = createContext();
 
-export const AppContextProvider = ({ children }) => {
+export const AppContextProvider = ({children}) => {
   //   const [auth, setAuth] = useState(false);
   const [profile, setProfile] = useState({});
   const [wishCount, setWishCount] = useState(0);
@@ -32,32 +27,30 @@ export const AppContextProvider = ({ children }) => {
     } else {
       setProfile(JSON.parse(prof));
     }
-     await loadWishList()
-
+    await loadWishList();
   };
 
   const loadCart = async () => {
     let localCart = await AsyncStorage.getItem('loacalCart');
     if (!localCart) {
       setCartData([]);
-    }
-    else {
+    } else {
       setCartData(JSON.parse(localCart));
     }
-  }
+  };
 
-  const updateCart = async (ProductID) => {
+  const updateCart = async ProductID => {
     let res = await getCartList();
     if (res.cartList.length > 0) {
       let a = {};
       res.cartList.map((item, i) => {
-        let key1 = "p" + item.productId;
+        let key1 = 'p' + item.productId;
         let qty = item.qty;
         a[key1] = qty;
       });
       await AsyncStorage.setItem('loacalCart', JSON.stringify(a));
     } else {
-      await AsyncStorage.removeItem('loacalCart')
+      await AsyncStorage.removeItem('loacalCart');
     }
   };
 
@@ -65,47 +58,44 @@ export const AppContextProvider = ({ children }) => {
     let loacalWishList = await AsyncStorage.getItem('loacalWishList');
     if (!loacalWishList) {
       setWishListData([]);
-    }
-    else {
+    } else {
       setWishListData(JSON.parse(loacalWishList));
     }
-  }
+  };
 
   const updateWishList = async () => {
-    try{
+    try {
       let res = await getWishList();
       if (res.length > 0) {
         let a = {};
         res.map((item, i) => {
-          let key1 = "p" + item.vehId;
+          let key1 = 'p' + item.vehId;
           let value = true;
           a[key1] = value;
         });
         await AsyncStorage.setItem('loacalWishList', JSON.stringify(a));
       } else {
-        await AsyncStorage.removeItem('loacalWishList')
+        await AsyncStorage.removeItem('loacalWishList');
       }
       await loadWishList();
-    } catch(err){
+    } catch (err) {
       await AsyncStorage.removeItem('loacalWishList');
-      await loadWishList()
+      await loadWishList();
     }
   };
 
   const editProfile = async (email, phone, name) => {
     let prof = await AsyncStorage.getItem('profile');
     let res = await updateProfile(email, phone, name);
-   
   };
 
-  const editPincode = async (item) => {
+  const editPincode = async item => {
     let prof = await AsyncStorage.getItem('profile');
     profile.pincode = item.pincodeId;
     if (item.area !== null) {
       profile.pinAddress = item.area;
-      profile.pincode = item.pincodeId
+      profile.pincode = item.pincodeId;
     } else {
-
     }
     setProfile(profile);
     await AsyncStorage.setItem('profile', JSON.stringify(profile));
@@ -113,9 +103,9 @@ export const AppContextProvider = ({ children }) => {
 
   const register = async (OTP, details) => {
     await verifyOTP({
-      sp: "confirmCustomerRegisterOtp",
+      sp: 'confirmCustomerRegisterOtp',
       custId: details.custId,
-      OTP: OTP
+      OTP: OTP,
     });
     let prof = JSON.parse(await AsyncStorage.getItem('profile'));
     let obj = {
@@ -126,15 +116,15 @@ export const AppContextProvider = ({ children }) => {
     setProfile(obj);
     const OnesignalID = `${obj[0]?.customerId}-c`;
     OneSignal.setExternalUserId(OnesignalID);
-  
+
     return 'Account created successfully';
   };
 
   const vendorRegister = async (OTP, details) => {
     await verifyOTP({
-      sp: "confirmSellerRegisterOtp",
-      sellerId:details.sellerId, 
-      OTP: OTP
+      sp: 'confirmSellerRegisterOtp',
+      sellerId: details.sellerId,
+      OTP: OTP,
     });
     let prof = JSON.parse(await AsyncStorage.getItem('profile'));
     let obj = {
@@ -145,12 +135,11 @@ export const AppContextProvider = ({ children }) => {
     setProfile(obj);
     const OnesignalID = `${obj[0]?.customerId}-s`;
     OneSignal.setExternalUserId(OnesignalID);
-  
+
     return 'Account created successfully';
   };
 
-
-  const login = async (payload) => {
+  const login = async payload => {
     loadProfile();
     let user = await loginUser(payload);
     let prof = JSON.parse(await AsyncStorage.getItem('profile'));
@@ -159,19 +148,18 @@ export const AppContextProvider = ({ children }) => {
       ...user,
     };
     await AsyncStorage.setItem('profile', JSON.stringify(obj));
-    await AsyncStorage.setItem('token', user[0].token);
-    await AsyncStorage.setItem('userType', user[0].userMode);
-
+    await AsyncStorage.setItem('token', user[0]?.token);
+    await AsyncStorage.setItem('userType', user[0]?.userMode);
 
     setProfile(obj);
-    if(user[0].userMode == 'seller'){
+    if (user[0].userMode == 'seller') {
       const OnesignalID = `${obj[0]?.customerId}-s`;
       OneSignal.setExternalUserId(OnesignalID);
-    } else{
+    } else {
       const OnesignalID = `${obj[0]?.customerId}-c`;
       OneSignal.setExternalUserId(OnesignalID);
     }
-    
+
     return 'Logged in successfully';
   };
 
@@ -196,8 +184,7 @@ export const AppContextProvider = ({ children }) => {
     try {
       let res = await getWishList();
       setWishCount(res.length);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
   const updateLanguage = async () => {
     let langCode = await AsyncStorage.getItem('LangCode');
@@ -208,8 +195,7 @@ export const AppContextProvider = ({ children }) => {
       } catch (err) {
         Toast.show(err);
       }
-    }
-    else {
+    } else {
       try {
         let Lang = await getLanguageList('en');
         setLanguage(Lang);
@@ -239,7 +225,7 @@ export const AppContextProvider = ({ children }) => {
     loadWishList,
     updateWishList,
     wishListData,
-    cCodeFlag
+    cCodeFlag,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
