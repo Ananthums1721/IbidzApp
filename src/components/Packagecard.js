@@ -35,14 +35,19 @@ const Packagecard = ({
   const {showLoader} = React.useContext(LoaderContext);
 
   const {profile} = useContext(AppContext);
+  console.log('profileData', profile);
 
   const getRazorpayInfo = async () => {
     try {
       // showLoader(true)
       let res = await razorPayInfo({
         sp: 'razorPayInfo',
-        custId: profile[0].customerId,
+        userId:
+          profile[0]?.userMode == 'seller'
+            ? profile[0]?.sellerId
+            : profile[0].customerId,
         packId: packageId,
+        userType: profile[0]?.userMode,
       });
       setRazorpayRes(res[0]);
       showLoader(false);
@@ -62,6 +67,7 @@ const Packagecard = ({
         };
         RazorpayCheckout.open(options)
           .then(async data => {
+            console.log('razorpaydata', data);
             try {
               let res1 = await updPackageOrder({
                 sp: 'updPackageOrder',
