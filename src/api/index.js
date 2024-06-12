@@ -146,10 +146,24 @@ export const getProfileDetails = async () => {
 
 export const getPackageListData = async () => {
   let profile = JSON.parse(await AsyncStorage.getItem('profile'));
-  const URL = `?sp=getUserPackage&userId=${
-    profile[0]?.customerId ? profile[0]?.customerId : ''
-  }&userType=${profile[0]?.userMode}`;
+  const URL = profile[0]?.customerId
+    ? `?sp=getUserPackage&userId=${
+        profile[0]?.customerId ? profile[0]?.customerId : ''
+      }&userType=${profile[0]?.userMode}`
+    : `?sp=getUserPackage&userId=${
+        profile[0]?.sellerId ? profile[0]?.sellerId : ''
+      }&userType=${profile[0]?.userMode}`;
+  console.log('URL', URL);
   let details = await get1(URL);
+  return details;
+};
+
+export const getIsPackageActive = async () => {
+  let profile = JSON.parse(await AsyncStorage.getItem('profile'));
+  const URL = `?sp=isPackageActive&userId=${
+    profile[0]?.customerId ? profile[0]?.customerId : profile[0]?.sellerId
+  }`;
+  let details = await get(URL);
   return details;
 };
 

@@ -53,8 +53,8 @@ const Profile = ({navigation}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      getProfile();
-      getDashBoardDetails();
+      // getProfile();
+      // getDashBoardDetails();
       getPackageList();
     }, []),
   );
@@ -78,6 +78,7 @@ const Profile = ({navigation}) => {
     try {
       showLoader(true);
       let res = await getPackageListData();
+      console.log('res============>', res);
       setPackageList(res);
       showLoader(false);
     } catch (e) {

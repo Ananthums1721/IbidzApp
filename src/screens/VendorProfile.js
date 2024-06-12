@@ -19,7 +19,12 @@ import {LoaderContext} from '../Context/loaderContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppContext} from '../Context/appContext';
 import Toast from 'react-native-simple-toast';
-import {getVendorDashBoardData, getVendorProfile} from '../api';
+import {
+  getIsPackageActive,
+  getPackageListData,
+  getVendorDashBoardData,
+  getVendorProfile,
+} from '../api';
 import Modal from 'react-native-modal';
 import AuthButton from '../components/AuthButton';
 import {useFocusEffect} from '@react-navigation/native';
@@ -35,14 +40,26 @@ const Profile = ({navigation}) => {
   const [refresh, setRefresh] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [packageList, setPackageList] = useState([]);
+  const [isPackage, setIsPackage] = useState([]);
 
   useFocusEffect(
     React.useCallback(() => {
       getProfile();
       getDashBoardDetails();
       getPackageList();
+      getPackageIsActive();
     }, []),
   );
+
+  const getPackageIsActive = async () => {
+    try {
+      let response = await getIsPackageActive();
+      console.log('getIsPackageActiveresponse===>', response);
+      setIsPackage(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const getProfile = async () => {
     try {
@@ -99,6 +116,15 @@ const Profile = ({navigation}) => {
       index: 0,
       routes: [{name: 'SplashScreen'}],
     });
+  };
+
+  const reDirectPage = () => {
+    if (isPackage[0]?.isPackageActive == 0) {
+      Toast.show('Please buy a package to continue');
+      navigation.navigate('Packages');
+    } else {
+      navigation.navigate('AddVehicle');
+    }
   };
 
   return (
@@ -259,7 +285,7 @@ const Profile = ({navigation}) => {
 
         <TouchableOpacity
           style={styles.componentView}
-          onPress={() => navigation.navigate('AddVehicle')}>
+          onPress={() => reDirectPage()}>
           <View style={styles.menuCon}>
             {showIcon('carPlus', colours.primaryBlack, 16)}
           </View>
